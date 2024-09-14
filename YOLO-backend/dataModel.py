@@ -21,18 +21,12 @@ class UserResponse(UserBase):
     id: int
     parking_history: Optional[List["ParkingHistoryResponse"]] = []
 
-    class Config:
-        orm_mode = True
-
 
 class ParkingHistoryResponse(BaseModel):
     id: int
     parking_lot_id: int
     entry_time: str
     exit_time: Optional[str]
-
-    class Config:
-        orm_mode = True
 
 class ParkingLotBase(BaseModel):
     address: str
@@ -47,10 +41,3 @@ class ParkingHistoryBase(BaseModel):
     parking_lot_id: int
     entry_time: str
     exit_time: str
-    
-    class Config:
-        orm_mode = True
-
-class LoginSchema(BaseModel):
-    email: str
-    password: str

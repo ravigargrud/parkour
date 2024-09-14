@@ -2,5 +2,6 @@ YOLO-backend/backup.py
 YOLO-backend/venv
 YOLO-backend/Training-Data
 YOLO-backend/__pycache__
+YOLO-backend/routes/__pycache__
 YOLO-backend/model
 YOLO-backend/database.db

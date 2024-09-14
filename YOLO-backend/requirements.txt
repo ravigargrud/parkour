@@ -13,3 +13,9 @@ torchvision
 tqdm
 filterpy
 scikit-image
+fastAPI
+uvicorn
+sqlalchemy
+passlib
+pydantic[email]
+bcrypt

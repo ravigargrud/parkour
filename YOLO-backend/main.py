@@ -1,12 +1,32 @@
-from ultralytics import YOLO
-import cv2
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from routes.userbase import router as userbaseRoute
+from routes.parkings import router as parkingRoute
+from routes.machineLearning import router as mlRoute
+from databaseConnection import engine, Base
 
-# cap = cv2.VideoCapture(0)
-# cap.set(3, 640)
-# cap.set(4, 480)
 
-cap = cv2.VideoCapture("Training-Data/1.mp4")
 
-model = YOLO("Yolo-Weights/psd.pt")
+app = FastAPI(
+    title="Parkour",
+    version="1.0.0"
+)
 
-classNames = ['empty', 'occupied']
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
+
+Base.metadata.create_all(bind=engine) # Create the tables in the database
+
+app.include_router(userbaseRoute)
+app.include_router(parkingRoute)
+app.include_router(mlRoute)
+
+@app.get("/")
+def home():
+    return {"hello": "world"}
+

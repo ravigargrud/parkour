@@ -6,7 +6,6 @@ from routes.machineLearning import router as mlRoute
 from databaseConnection import engine, Base
 
 
-
 app = FastAPI(
     title="Parkour",
     version="1.0.0"

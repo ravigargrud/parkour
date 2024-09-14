@@ -50,3 +50,7 @@ class ParkingHistoryBase(BaseModel):
     
     class Config:
         orm_mode = True
+
+class LoginSchema(BaseModel):
+    email: str
+    password: str

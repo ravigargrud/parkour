@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float
+from sqlalchemy import Column, Integer, String, ForeignKey, Float
 from sqlalchemy.orm import relationship
 from databaseConnection import Base
 
@@ -15,6 +15,7 @@ class User(Base):
     # Relationship for parking history
     parking_history = relationship("ParkingHistory", back_populates="user")
 
+
 class ParkingHistory(Base):
     __tablename__ = "parking_history"
 
@@ -28,21 +29,34 @@ class ParkingHistory(Base):
     user = relationship("User", back_populates="parking_history")
     parking_lot = relationship("ParkingLot", back_populates="parking_history")
 
+class ParkingPhoto(Base):
+    __tablename__ = "parking_photos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    imgLink = Column(String)
+    parking_lot_id = Column(Integer, ForeignKey("parking_lots.id"))
+
+    # Relationship back to ParkingLot
+    parking_lot = relationship("ParkingLot", back_populates="parking_photos")
+
 class ParkingLot(Base):
     __tablename__ = "parking_lots"
 
     id = Column(Integer, primary_key=True, index=True)
-    
-    # New location fields
     latitude = Column(Float)
     longitude = Column(Float)
     address = Column(String)
-
     contact_no = Column(String)
     scooter_cost_per_hour = Column(Float)
     car_cost_per_hour = Column(Float)
     total_capacity = Column(Integer)
     currently_occupied = Column(Integer, default=0)
 
-    # Relationship for parking history
+    # Relationship to ParkingPhoto
+    parking_photos = relationship("ParkingPhoto", back_populates="parking_lot")
+    
+    # Relationship to ParkingHistory
     parking_history = relationship("ParkingHistory", back_populates="parking_lot")
+
+
+

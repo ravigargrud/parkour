@@ -1,9 +1,10 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
-from dataModel import ParkingLotBase, ParkingHistoryBase
+from dataModel import ParkingLotBase, ParkingHistoryBase, ParkingPhotoBase
 from databaseConnection import SessionLocal
 from sqlalchemy.orm import Session
-from databaseSchema import ParkingLot, ParkingHistory
+from databaseSchema import ParkingLot, ParkingHistory, ParkingPhoto
+import math
 
 def create_parking_lot(db: Session, parking_lot: ParkingLotBase):
     db_parking_lot = ParkingLot(
@@ -16,9 +17,20 @@ def create_parking_lot(db: Session, parking_lot: ParkingLotBase):
         total_capacity=parking_lot.total_capacity,
         currently_occupied=parking_lot.currently_occupied
     )
+    
     db.add(db_parking_lot)
     db.commit()
     db.refresh(db_parking_lot)
+
+    # Add parking photos
+    for photo in parking_lot.parking_photos:
+        db_parking_photo = ParkingPhoto(
+            imgLink=photo.imgLink,
+            parking_lot_id=db_parking_lot.id
+        )
+        db.add(db_parking_photo)
+    
+    db.commit()
     return db_parking_lot
 
 # Get parking lot by ID
@@ -46,6 +58,19 @@ def add_parking_history(db: Session, parkinghistory:ParkingHistoryBase):
 def get_parking_history(db: Session, user_id: int):
     return db.query(ParkingHistory).filter(ParkingHistory.user_id == user_id).all()
 
+def getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2):
+    R = 6371  # Radius of the earth in km
+    dLat = math.radians(lat2 - lat1)
+    dLon = math.radians(lon2 - lon1)
+    a = (
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) *
+        math.sin(dLon / 2) * math.sin(dLon / 2)
+    )
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    d = R * c  # Distance in km
+    return d
+
 router = APIRouter(
     prefix="/parking",
     tags=["Parking"]
@@ -60,12 +85,12 @@ def get_db():
         db.close()
 
 # Create a new parking lot
-@router.post("/create-lot", response_model=ParkingLotBase)
+@router.post("/create-lot")
 def create_new_parking_lot(parking_lot: ParkingLotBase, db: Session = Depends(get_db)):
     return create_parking_lot(db=db, parking_lot=parking_lot)
 
 # Get parking lot by ID
-@router.get("/get-lot-by-id/{parking_lot_id}", response_model=ParkingLotBase)
+@router.get("/get-lot-by-id/{parking_lot_id}")
 def read_parking_lot(parking_lot_id: int, db: Session = Depends(get_db)):
     db_parking_lot = get_parking_lot(db, parking_lot_id=parking_lot_id)
     if db_parking_lot is None:
@@ -88,3 +113,21 @@ def create_parking_history(parking_history: ParkingHistoryBase, db: Session = De
 def read_parking_history(user_id: int, db: Session = Depends(get_db)):
     history = get_parking_history(db, user_id=user_id)
     return history
+
+# Get parkings by latitude and longitude within a specified range
+@router.get("/get-parking-by-lat-long")
+def getParkingByLatLong(latitude: float, longitude: float, range_km: float, db: Session = Depends(get_db)):
+    # Get all parking lots
+    parking_lots = db.query(ParkingLot).all()
+
+    # Filter parking lots by distance
+    nearby_parking_lots = []
+    for lot in parking_lots:
+        distance = getDistanceFromLatLonInKm(latitude, longitude, lot.latitude, lot.longitude)
+        if distance <= range_km:
+            nearby_parking_lots.append(lot)
+    
+    if not nearby_parking_lots:
+        raise HTTPException(status_code=404, detail="No parking lots found within the specified range.")
+    
+    return nearby_parking_lots

@@ -34,12 +34,16 @@ class Location(BaseModel):
     longitude: float
     address: str
 
+class ParkingPhotoBase(BaseModel):
+    imgLink: str
+
 
 class ParkingLotBase(BaseModel):
     location: Location
     contact_no: str
     scooter_cost_per_hour: float
     car_cost_per_hour: float
+    parking_photos: Optional[List["ParkingPhotoBase"]] = []
     total_capacity: int
     currently_occupied: int
 

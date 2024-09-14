@@ -1,10 +1,14 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
-from dataModel import UserBase, UserCreate, UserResponse
+from dataModel import UserBase, UserCreate, UserResponse, LoginSchema
 from databaseConnection import SessionLocal
 from sqlalchemy.orm import Session
 from databaseSchema import User
 from passlib.context import CryptContext
+
+# import logging
+
+# logger = logging.getLogger(__name__)
 
 # Password hashing utility
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -90,8 +94,20 @@ def read_user_by_email(email: str, db: Session = Depends(get_db)):
     return db_user
 
 @router.post("/login", response_model=UserResponse)
-def loginUser(email: str, password:str, db: Session = Depends(get_db)):
-    db_user = login_user(db, email, password)
+def loginUser(loginSchema:LoginSchema, db: Session = Depends(get_db)):
+    db_user = login_user(db, loginSchema.email, loginSchema.password)
     if db_user is None:
         raise HTTPException(status_code=400, detail="Invalid credentials")
     return db_user
+
+# @router.get("/login", response_model=UserResponse)
+# def loginUser(email: str, password:str, db: Session = Depends(get_db)):    
+#     logger.info(f"Attempting login for email: {email}")
+    
+#     db_user = login_user(db, email, password)
+#     if db_user is None:
+#         logger.warning(f"Login failed for email: {email}")
+#         raise HTTPException(status_code=400, detail="Invalid credentials")
+    
+#     logger.info(f"Login successful for email: {email}")
+#     return db_user

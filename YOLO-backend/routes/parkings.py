@@ -7,15 +7,16 @@ from databaseSchema import ParkingLot, ParkingHistory
 
 def create_parking_lot(db: Session, parking_lot: ParkingLotBase):
     db_parking_lot = ParkingLot(
-        unique_parking_id=parking_lot.unique_parking_id,
-        address=parking_lot.address,
+        latitude=parking_lot.location.latitude,
+        longitude=parking_lot.location.longitude,
+        address=parking_lot.location.address,
         contact_no=parking_lot.contact_no,
         scooter_cost_per_hour=parking_lot.scooter_cost_per_hour,
         car_cost_per_hour=parking_lot.car_cost_per_hour,
         total_capacity=parking_lot.total_capacity,
         currently_occupied=parking_lot.currently_occupied
     )
-    db.add(db_parking_lot)  
+    db.add(db_parking_lot)
     db.commit()
     db.refresh(db_parking_lot)
     return db_parking_lot

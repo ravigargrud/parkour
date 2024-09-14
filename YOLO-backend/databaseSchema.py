@@ -32,7 +32,12 @@ class ParkingLot(Base):
     __tablename__ = "parking_lots"
 
     id = Column(Integer, primary_key=True, index=True)
+    
+    # New location fields
+    latitude = Column(Float)
+    longitude = Column(Float)
     address = Column(String)
+
     contact_no = Column(String)
     scooter_cost_per_hour = Column(Float)
     car_cost_per_hour = Column(Float)

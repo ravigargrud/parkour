@@ -28,13 +28,24 @@ class ParkingHistoryResponse(BaseModel):
     entry_time: str
     exit_time: Optional[str]
 
-class ParkingLotBase(BaseModel):
+
+class Location(BaseModel):
+    latitude: float
+    longitude: float
     address: str
+
+
+class ParkingLotBase(BaseModel):
+    location: Location
     contact_no: str
     scooter_cost_per_hour: float
     car_cost_per_hour: float
     total_capacity: int
     currently_occupied: int
+
+class LoginSchema(BaseModel):
+    email: str
+    password: str
 
 class ParkingHistoryBase(BaseModel):
     user_id: int

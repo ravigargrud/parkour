@@ -9,4 +9,12 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  proxy: {
+    // Proxy all requests to 'http://localhost:8000'
+    '*': {
+      target: 'http://localhost:8000',
+      changeOrigin: true,
+      rewrite: (path) => path.replace(/^\//, '') // Remove leading '/'
+    }
+  }
 });

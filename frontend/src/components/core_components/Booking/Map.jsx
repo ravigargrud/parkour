@@ -7,12 +7,14 @@ import "@maptiler/sdk/dist/maptiler-sdk.css";
 import "./map.css";
 import ParkingCard from "./ParkingCard";
 import UserContext from "../../../store/user-context";
+import axios from "axios";
 
 export default function Map() {
   const apiKey = "kycBAmj2IMWpvJzMRN9v"; // Your MapTiler API key
 
   const mapContainer = useRef(null);
   const map = useRef(null);
+  const markerRef = useRef(null); // Single marker reference
   const markersRef = useRef([]);
   const zoom = 15;
   const [mapController, setMapController] = useState(null);
@@ -59,7 +61,7 @@ export default function Map() {
   }, [location.latitude, location.longitude, zoom]);
 
   useEffect(() => {
-    if (mapContainer.current && userCtx.isLoading !== true) {
+    if (mapContainer.current && !userCtx.isLoading) {
       if (!map.current) {
         map.current = new maptilersdk.Map({
           container: mapContainer.current,
@@ -70,20 +72,28 @@ export default function Map() {
         setMapController(
           createMapLibreGlMapController(map.current, maptilersdk)
         );
-
-        console.log(location);
-
-        const marker = new maptilersdk.Marker({ draggable: true }).setLngLat([location.longitude, location.latitude]).addTo(map.current);
-
-        marker.on("dragend", () => {
-          const currentLocation = marker.getLngLat();
-          console.log(currentLocation.lng);
-
-          setLocation({ latitude: currentLocation.lat, longitude: currentLocation.lng });
-        })
       }
+
+      // Create or update the draggable marker
+      if (markerRef.current) {
+        markerRef.current.remove();
+      }
+
+      const marker = new maptilersdk.Marker({ draggable: true })
+        .setLngLat([location.longitude, location.latitude])
+        .addTo(map.current);
+
+      markerRef.current = marker;
+
+      marker.on("dragend", () => {
+        const currentLocation = marker.getLngLat();
+        setLocation({
+          latitude: currentLocation.lat,
+          longitude: currentLocation.lng
+        });
+      });
     }
-  }, [location.latitude, location.longitude, zoom]);
+  }, [location.latitude, location.longitude, zoom, userCtx.isLoading]);
 
   useEffect(() => {
     if (map.current) {
@@ -112,11 +122,37 @@ export default function Map() {
     }
   }, [selectedLocation]);
 
+  useEffect(() => {
+    if (location.latitude && location.longitude) {
+      const fetchByLatLng = async () => {
+        try {
+          const response = await axios.get("http://localhost:8000/get-parking-by-lat-long", {
+            params: {
+              latitude: location.latitude,
+              longitude: location.longitude
+            }
+          });
+          console.log(response.data);
+          // Handle the parking data here
+        } catch (err) {
+          setError('Failed to fetch parking data.');
+          console.error(err);
+        }
+      };
+
+      fetchByLatLng();
+    }
+  }, [location.latitude, location.longitude]);
+
   return (
     <div className="map-wrap relative">
-      {userCtx.isLoading ? <div className="text-center text-2xl justify-center h-full items-center">Loading...</div> : <div ref={mapContainer} className="map" />}
+      {userCtx.isLoading ? (
+        <div className="text-center text-2xl justify-center h-full items-center">Loading...</div>
+      ) : (
+        <div ref={mapContainer} className="map" />
+      )}
       {error && <p>Error: {error}</p>}
-      {showDialog && (
+      {showDialog && selectedLocation && (
         <ParkingCard
           className={`absolute bottom-10 right-4 w-64 h-auto z-20 focus:outline-none focus:ring-2 focus:ring-blue-500`}
           parkingData={{
@@ -136,3 +172,4 @@ export default function Map() {
     </div>
   );
 }
+  

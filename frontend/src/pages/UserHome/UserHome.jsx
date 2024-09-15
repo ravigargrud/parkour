@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Map from '../../components/core_components/Booking/Map'
 import HomeCard from './UserHomeCard'
 
@@ -14,6 +14,7 @@ import { CloudLightning, Flashlight, Lock, Phone, Search } from 'lucide-react';
 
 import EVENT from "../../assets/event.png";
 import GIRL_IN_CAR from "../../assets/girl-in-car.png";
+import List from '../../components/custom_components/List';
 
 const UserHome = () => {
   return (
@@ -28,9 +29,9 @@ const UserHome = () => {
           <HomeCard parkingImg={PARK3} />
         </div>
 
-        <div className='flex gap-6 my-24'>
-          <div className='flex flex-col w-1/2 bg-[#f8f1e3] p-4 items-center rounded-2xl'>
-            <p className='text-2xl font-bold my-4'>Reserve your parking spot in advance</p>
+        <div className='flex gap-6 my-24 h-[17rem]'>
+          <div className='flex flex-col w-1/2 bg-[#f8f1e3] p-4 items-center rounded-2xl '>
+            <p className='text-2xl font-bold my-4 text-center'>Reserve your parking spot in advance</p>
             <div className='flex items-center justify-between gap-4 mt-4 w-2/3'>
               <Search className='text-gray-800' />
               <input type="text" placeholder="I want to park near..." className='w-full px-8 py-2' />
@@ -38,7 +39,7 @@ const UserHome = () => {
             <button className="text-white bg-black py-2 rounded-lg w-1/2 mx-auto mt-8 mb-8">Book your spot</button>
           </div>
 
-          <div className='flex flex-col w-1/2 p-4 items-center object-contain rounded-2xl' style={{ backgroundImage: `url(${EVENT})` }}>
+          <div className='h-auto flex flex-col w-1/2 p-4 items-center object-cover bg-no-repeat rounded-2xl' style={{ backgroundImage: `url(${EVENT})` }}>
             <p className='text-2xl font-bold my-4'>Event Parking</p>
             <div className='flex items-center justify-between gap-4 mt-4 w-2/3'>
               <Search className='text-gray-800' />
@@ -70,50 +71,11 @@ const UserHome = () => {
         </div>
 
         <div className='flex gap-2 my-32'>
-          <div>
-            <ul className='h-full flex flex-col justify-between py-24 px-6'>
-              <li className='flex gap-8 items-center'>
-                <Phone />
-                <div>
-                  <p className='text-xl'>More Convenient</p>
-                  <p className='mt-2'>Do it all from your mobile. Enter the app, find parking, and reserve. It’s that
-                    easy. Oh, and if your plans change, update your reservation.</p>
-                </div>
-              </li>
-              <li className='flex gap-8 items-center'>
-                <CloudLightning />
-                <div>
-                  <p className='text-xl'>More Convenient</p>
-                  <p className='mt-2'>Do it all from your mobile. Enter the app, find parking, and reserve. It’s that
-                    easy. Oh, and if your plans change, update your reservation.</p>
-                </div>
-              </li>
-              <li className='flex gap-8 items-center'>
-                <Flashlight />
-                <div>
-                  <p className='text-xl'>More Convenient</p>
-                  <p className='mt-2'>Do it all from your mobile. Enter the app, find parking, and reserve. It’s that
-                    easy. Oh, and if your plans change, update your reservation.</p>
-                </div>
-              </li>
-              <li className='flex gap-8 items-center'>
-                <Lock />
-                <div>
-                  <p className='text-xl'>More Convenient</p>
-                  <p className='mt-2'>Do it all from your mobile. Enter the app, find parking, and reserve. It’s that
-                    easy. Oh, and if your plans change, update your reservation.</p>
-                </div>
-              </li>
-            </ul>
-          </div>
+          <List />
 
           <div>
             <img src={GIRL_IN_CAR} alt="" />
           </div>
-        </div>
-
-        <div>
-
         </div>
       </div>
     </div>

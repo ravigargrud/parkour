@@ -6,11 +6,19 @@ import UserHome from "./pages/UserHome/UserHome";
 
 import UserLayout from "./layout/UserLayout";
 import AdminLayout from "./layout/AdminLayout";
+import AuthLayout from "./layout/AuthLayout";
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
+import ListSpace from "./pages/UserHome/ListSpace";
+import DashBoard from "./pages/UserHome/DashBoard";
+import Parking from "./pages/Parking/Parking";
+import Error from "./pages/Error";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
+    errorElement: <Error />,
     children: [
       {
         path: "/user",
@@ -19,6 +27,14 @@ const router = createBrowserRouter([
           {
             path: "/user/",
             element: <UserHome />,
+          },
+          {
+            path: "/user/list-a-space/",
+            element: <ListSpace />
+          },
+          {
+            path: "/user/dashboard",
+            element: <DashBoard />
           }
         ]
       },
@@ -27,6 +43,24 @@ const router = createBrowserRouter([
         element: <AdminLayout />,
       }
     ],
+  },
+  {
+    path: "/parking/:id",
+    element: <Parking />
+  },
+  {
+    path: "/auth",
+    element: <AuthLayout />,
+    children: [
+      {
+        path: "login/",
+        element: <Login />
+      },
+      {
+        path: "register/",
+        element: <Register />
+      }
+    ]
   },
 ]);
 

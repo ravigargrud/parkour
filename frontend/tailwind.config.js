@@ -48,7 +48,9 @@ export default {
   				foreground: 'hsl(var(--card-foreground))'
   			},
 
-			"custom-blue": "#1A2027"
+			"custom-blue": "#1A2027",
+			"light-violet": "#DCDFFE",
+			"dark-violet": "#694BC4",
   		},
   		borderRadius: {
   			lg: 'var(--radius)',

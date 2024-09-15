@@ -37,10 +37,16 @@ def create_parking_lot(db: Session, parking_lot: ParkingLotBase):
 def get_parking_lot(db: Session, parking_lot_id: int):
     return db.query(ParkingLot).filter(ParkingLot.id == parking_lot_id).first()
 
+
+def get_parking_lot_photos(db: Session, parking_lot_id: int):
+    return db.query(ParkingPhoto).filter(ParkingPhoto.parking_lot_id == parking_lot_id).all()
+
 # Get all parking lots
 def get_parking_lots(db: Session, skip: int = 0, limit: int = 10):
     return db.query(ParkingLot).offset(skip).limit(limit).all()
 
+def get_parking_lots_pictures(db: Session, skip: int = 0, limit: int = 10):
+    return db.query(ParkingPhoto).offset(skip).limit(limit).all()
 
 def add_parking_history(db: Session, parkinghistory:ParkingHistoryBase):
     db_parking_history = ParkingHistory(
@@ -97,6 +103,7 @@ def read_parking_lot(parking_lot_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Parking lot not found")
     return db_parking_lot
 
+
 # Get all parking lots
 @router.get("/get-lots")
 def read_parking_lots(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
@@ -131,3 +138,19 @@ def getParkingByLatLong(latitude: float, longitude: float, range_km: float, db: 
         raise HTTPException(status_code=404, detail="No parking lots found within the specified range.")
     
     return nearby_parking_lots
+
+# Get parking lot by ID with associated photos
+@router.get("/get-lot-photos/{parking_lot_id}", response_model=List[ParkingPhotoBase])
+def get_parking_lot_photos_route(parking_lot_id: int, db: Session = Depends(get_db)):
+    db_photos = get_parking_lot_photos(db, parking_lot_id=parking_lot_id)
+    if not db_photos:
+        raise HTTPException(status_code=404, detail="No photos found for the specified parking lot")
+    return db_photos
+
+# Get all parking photos (across all parking lots)
+@router.get("/get-all-parking-photos", response_model=List[ParkingPhotoBase])
+def get_all_parking_photos(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    db_photos = get_parking_lots_pictures(db, skip=skip, limit=limit)
+    if not db_photos:
+        raise HTTPException(status_code=404, detail="No parking photos found")
+    return db_photos

@@ -11,14 +11,15 @@ import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import ListSpace from "./pages/UserHome/ListSpace";
 import DashBoard from "./pages/UserHome/DashBoard";
-import Parking from "./pages/Parking/Parking";
+import Parking from "./pages/UserHome/Parking";
 import Error from "./pages/Error";
+import { ParkingContextProvider } from "./store/parking-lots";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
-    errorElement: <Error />,
+    // errorElement: <Error />,
     children: [
       {
         path: "/user",
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
           {
             path: "/user/dashboard",
             element: <DashBoard />
+          },
+          {
+            path: "/user/booking",
+            element: <Parking />
           }
         ]
       },
@@ -66,9 +71,11 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <UserContextProvider>
-      <RouterProvider router={router}></RouterProvider>
-    </UserContextProvider>
+    <ParkingContextProvider>
+      <UserContextProvider>
+        <RouterProvider router={router}></RouterProvider>
+      </UserContextProvider>
+    </ParkingContextProvider>
   );
 }
 

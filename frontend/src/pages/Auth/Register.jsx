@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import axios from "axios";
 import List from '../../components/custom_components/List';
+import Swal from 'sweetalert2';
 
 const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -17,7 +18,20 @@ const Register = () => {
 
     const currentRoute = useLocation();
 
-    // Handle user login
+    // Toast configuration for SweetAlert2
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        }
+    });
+
+    // Handle user registration
     const handleFormSubmit = async (e) => {
         e.preventDefault();
 
@@ -26,8 +40,18 @@ const Register = () => {
 
         try {
             const response = await axios.post("http://localhost:8000/user/create", data);
+            // Show success notification
+            Toast.fire({
+                icon: 'success',
+                title: 'Registration successful'
+            });
         } catch (error) {
-            console.error("Login error:", error);
+            // Show error notification
+            Toast.fire({
+                icon: 'error',
+                title: 'Registration failed. Please try again.'
+            });
+            console.error("Registration error:", error);
         }
     };
 
@@ -40,7 +64,7 @@ const Register = () => {
                 </div>
 
                 <div>
-                    <h1 className='text-2xl font-bold py-6'>Log in to your account</h1>
+                    <h1 className='text-2xl font-bold py-6'>Register your account</h1>
                     <form onSubmit={handleFormSubmit}>
                         <input
                             type="text"

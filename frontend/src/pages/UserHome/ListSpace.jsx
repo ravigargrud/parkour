@@ -1,9 +1,13 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import ADD_IMAGE from "../../assets/add-image.png";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
+import Swal from 'sweetalert2';
+import UserContext from '../../store/user-context';
 
 const ListSpace = () => {
+    const userCtx = useContext(UserContext);
+
     const [imagePreviews, setImagePreviews] = useState([null]); // Array to hold multiple image previews
     const [imagePaths, setImagePaths] = useState([]); // Array of objects to hold image paths
     const fileInputRefs = useRef([]); // Array to hold refs for each file input
@@ -34,8 +38,6 @@ const ListSpace = () => {
                 // Generate a random file name
                 const randomFileName = generateRandomFileName(file.type.split('/')[1]); // Use file extension from MIME type
                 const imagePath = `./parking_image/${randomFileName}`;
-                console.log(imagePath);
-
                 // Save the file locally (simulated)
                 saveAs(file, imagePath);
 
@@ -92,17 +94,35 @@ const ListSpace = () => {
             parking_photos: imagePaths, // Send image paths instead of image files
             total_capacity: parseInt(data.total_capacity) || 0,
             currently_occupied: parseInt(data.currently_occupied) || 0,
+            user_id: userCtx.user.id,
         };
-
-        console.log(finalData);
 
         try {
             // Submit the data
             await axios.post('http://localhost:8000/parking/create-lot', finalData);
-            console.log('Data successfully submitted');
+
+            // Show success alert
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Your parking space has been listed successfully.',
+                confirmButtonText: 'OK',
+            });
+
+            // Optionally, you might want to reset the form or image previews here
+            setImagePreviews([null]);
+            setImagePaths([]);
+            e.target.reset();
+
         } catch (error) {
             console.error('Error submitting data:', error);
-            // Show error to user
+            // Show error alert
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: 'Something went wrong! Please try again.',
+                confirmButtonText: 'OK',
+            });
         }
     };
 
@@ -161,9 +181,6 @@ const ListSpace = () => {
 
                     <label htmlFor="contact_no" className='text-gray-400 my-2'>Contact Number</label>
                     <input type="text" name='contact_no' id='contact_no' className='border-2 rounded-lg p-2' required />
-
-                    {/* <label htmlFor="timings" className='text-gray-400 my-2'>Timings</label>
-                    <input type="text" name='timings' id='timings' className='border-2 rounded-lg p-2' required /> */}
                 </div>
             </div>
 

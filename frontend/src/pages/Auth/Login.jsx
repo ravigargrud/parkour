@@ -4,12 +4,26 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from "axios";
 import List from '../../components/custom_components/List';
 import UserContext from "../../store/user-context";
+import Swal from 'sweetalert2';
 
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const userCtx = useContext(UserContext);
     const navigate = useNavigate();
     const currentRoute = useLocation();
+
+    // Toast configuration for SweetAlert2
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "bottom-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        }
+    });
 
     const showPasswordHandler = () => {
         setShowPassword(true);
@@ -32,9 +46,21 @@ const Login = () => {
             // Update user context with login data
             userCtx.setUser(response.data);
 
-            // Navigate to the registration page or other appropriate page
+            // Show success notification
+            Toast.fire({
+                icon: 'success',
+                title: 'Login successful'
+            });
+
+            // Navigate to the user dashboard or other appropriate page
             navigate("/user");
         } catch (error) {
+            // Show error notification
+            Toast.fire({
+                icon: 'error',
+                title: 'Login failed. Please check your credentials and try again.'
+            });
+
             console.error("Login error:", error);
         }
     };

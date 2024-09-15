@@ -8,6 +8,7 @@ import "./map.css";
 import ParkingCard from "./ParkingCard";
 import UserContext from "../../../store/user-context";
 import axios from "axios";
+import ParkingContext from "../../../store/parking-lots";
 
 export default function Map() {
   const apiKey = "kycBAmj2IMWpvJzMRN9v"; // Your MapTiler API key
@@ -23,16 +24,14 @@ export default function Map() {
   const [location, setLocation] = useState({ latitude: null, longitude: null });
   const [error, setError] = useState(null);
 
+  const [nearByLocations, setNearByLocations] = useState([]); // Changed initial state to []
+
   maptilersdk.config.apiKey = apiKey;
   maptilersdk.config.primaryLanguage = maptilersdk.Language.ENGLISH;
 
-  const locations = [
-    { id: 1, name: "Tokyo Tower", lng: 77.2867, lat: 28.7276 },
-    { id: 2, name: "Shibuya Crossing", lng: 77.2367, lat: 28.7652 },
-    { id: 3, name: "Tokyo Skytree", lng: 77.2467, lat: 28.7948 },
-  ];
-
+  //contexts
   const userCtx = useContext(UserContext);
+  const parkingCtx = useContext(ParkingContext);  
 
   const handleMarkerClick = (location) => {
     setSelectedLocation(location);
@@ -96,13 +95,13 @@ export default function Map() {
   }, [location.latitude, location.longitude, zoom, userCtx.isLoading]);
 
   useEffect(() => {
-    if (map.current) {
+    if (map.current && nearByLocations.length > 0) { // Check if nearby locations are available
       clearMarkers();
-      locations.forEach((loc) => {
+      nearByLocations.forEach((loc) => {
         const marker = new maptilersdk.Marker()
-          .setLngLat([loc.lng, loc.lat])
+          .setLngLat([loc.longitude, loc.latitude])
           .setPopup(
-            new maptilersdk.Popup({ offset: 25 }).setText(loc.name)
+            new maptilersdk.Popup({ offset: 25 }).setText(loc.address || "No Address") // Handle missing address
           )
           .addTo(map.current);
         marker
@@ -111,12 +110,12 @@ export default function Map() {
         markersRef.current.push(marker);
       });
     }
-  }, [locations]);
+  }, [nearByLocations]); // Dependency should be nearByLocations
 
   useEffect(() => {
     if (selectedLocation) {
       map.current.flyTo({
-        center: [selectedLocation.lng, selectedLocation.lat],
+        center: [selectedLocation.longitude, selectedLocation.latitude],
         zoom: zoom,
       });
     }
@@ -126,14 +125,16 @@ export default function Map() {
     if (location.latitude && location.longitude) {
       const fetchByLatLng = async () => {
         try {
-          const response = await axios.get("http://localhost:8000/get-parking-by-lat-long", {
+          const response = await axios.get("http://localhost:8000/parking/get-parking-by-lat-long", {
             params: {
               latitude: location.latitude,
-              longitude: location.longitude
+              longitude: location.longitude,
+              range_km: 20
             }
           });
-          console.log(response.data);
-          // Handle the parking data here
+
+          parkingCtx.setNearByLocations(response.data);
+          setNearByLocations(response.data); // Set the response data as nearby locations
         } catch (err) {
           setError('Failed to fetch parking data.');
           console.error(err);
@@ -157,9 +158,9 @@ export default function Map() {
           className={`absolute bottom-10 right-4 w-64 h-auto z-20 focus:outline-none focus:ring-2 focus:ring-blue-500`}
           parkingData={{
             id: selectedLocation.id,
-            title: selectedLocation.name,
-            location: `${selectedLocation.lat} ${selectedLocation.lng}`,
-            price: "Free",
+            title: selectedLocation.address,
+            location: `${selectedLocation.latitude} ${selectedLocation.longitude}`,
+            price: `Car: ₹${selectedLocation.car_cost_per_hour}/hr - Scooter: ₹${selectedLocation.scooter_cost_per_hour}/hr`,
           }}
         />
       )}
@@ -172,4 +173,3 @@ export default function Map() {
     </div>
   );
 }
-  

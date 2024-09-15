@@ -98,7 +98,7 @@ def read_parking_lot(parking_lot_id: int, db: Session = Depends(get_db)):
     return db_parking_lot
 
 # Get all parking lots
-@router.get("/get-lots", response_model=list[ParkingLotBase])
+@router.get("/get-lots")
 def read_parking_lots(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     parking_lots = get_parking_lots(db, skip=skip, limit=limit)
     return parking_lots

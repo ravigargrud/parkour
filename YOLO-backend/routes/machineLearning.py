@@ -12,7 +12,7 @@ router = APIRouter(
 )
 
 # Load your YOLO model (change path to your model)
-model = YOLO("../weights/best.pt")
+model = YOLO("weights/best.pt")
 
 classNames = ['empty', 'occupied']  # Your class names for parking spots
 

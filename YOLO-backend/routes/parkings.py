@@ -15,7 +15,8 @@ def create_parking_lot(db: Session, parking_lot: ParkingLotBase):
         scooter_cost_per_hour=parking_lot.scooter_cost_per_hour,
         car_cost_per_hour=parking_lot.car_cost_per_hour,
         total_capacity=parking_lot.total_capacity,
-        currently_occupied=parking_lot.currently_occupied
+        currently_occupied=parking_lot.currently_occupied,
+        user_id=parking_lot.user_id
     )
     
     db.add(db_parking_lot)
@@ -31,7 +32,7 @@ def create_parking_lot(db: Session, parking_lot: ParkingLotBase):
         db.add(db_parking_photo)
     
     db.commit()
-    return db_parking_lot
+    return {"message":"success"}
 
 # Get parking lot by ID
 def get_parking_lot(db: Session, parking_lot_id: int):

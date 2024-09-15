@@ -15,6 +15,9 @@ class User(Base):
     # Relationship for parking history
     parking_history = relationship("ParkingHistory", back_populates="user")
 
+    # Relationship for managing parking lots
+    parking_lots = relationship("ParkingLot", back_populates="user")
+
 
 class ParkingHistory(Base):
     __tablename__ = "parking_history"
@@ -29,6 +32,7 @@ class ParkingHistory(Base):
     user = relationship("User", back_populates="parking_history")
     parking_lot = relationship("ParkingLot", back_populates="parking_history")
 
+
 class ParkingPhoto(Base):
     __tablename__ = "parking_photos"
 
@@ -38,6 +42,7 @@ class ParkingPhoto(Base):
 
     # Relationship back to ParkingLot
     parking_lot = relationship("ParkingLot", back_populates="parking_photos")
+
 
 class ParkingLot(Base):
     __tablename__ = "parking_lots"
@@ -52,11 +57,14 @@ class ParkingLot(Base):
     total_capacity = Column(Integer)
     currently_occupied = Column(Integer, default=0)
 
+    # Foreign key to link the parking lot to a user (owner or manager)
+    user_id = Column(Integer, ForeignKey("users.id"))
+
     # Relationship to ParkingPhoto
     parking_photos = relationship("ParkingPhoto", back_populates="parking_lot")
-    
+
     # Relationship to ParkingHistory
     parking_history = relationship("ParkingHistory", back_populates="parking_lot")
 
-
-
+    # Relationship to the User (owner/manager of the parking lot)
+    user = relationship("User", back_populates="parking_lots")

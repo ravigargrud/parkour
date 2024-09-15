@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from dataModel import UserBase, UserCreate, UserResponse, LoginSchema
 from databaseConnection import SessionLocal
 from sqlalchemy.orm import Session
-from databaseSchema import User
+from databaseSchema import User, ParkingLot
 from passlib.context import CryptContext
 
 # import logging
@@ -55,6 +55,14 @@ def login_user(db: Session, email: str, password: str):
     if not verify_password(password, user.hashed_password):
         return None
     return user
+
+def get_user_parking_lots(db: Session, user_id: int):
+    lots = db.query(ParkingLot).filter(ParkingLot.user_id == user_id).all()
+    if lots:
+        return lots
+    else:
+        raise HTTPException(status_code=404, detail="User not found")
+
 
 router = APIRouter(
     prefix="/user",
@@ -111,3 +119,8 @@ def loginUser(loginSchema:LoginSchema, db: Session = Depends(get_db)):
     
 #     logger.info(f"Login successful for email: {email}")
 #     return db_user
+
+@router.get("/{user_id}/parking-lots")
+def get_parking_lots_for_user(user_id: int, db: Session = Depends(get_db)):
+    parking_lots = get_user_parking_lots(db, user_id=user_id)
+    return parking_lots

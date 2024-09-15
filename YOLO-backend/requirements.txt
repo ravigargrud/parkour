@@ -20,3 +20,5 @@ passlib
 pydantic[email]
 bcrypt
 python-multipart
+seaborn
+scikit-learn

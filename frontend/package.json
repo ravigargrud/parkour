@@ -21,6 +21,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
+    "file-saver": "^2.0.5",
     "lucide-react": "^0.439.0",
     "mapbox-gl": "^3.6.0",
     "maplibre-gl": "^4.7.0",
